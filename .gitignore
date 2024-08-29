@@ -1,0 +1,135 @@
+# Python-specific ignores
+__pycache__/
+*.py[cod]
+*.pyo
+*.pyd
+*.so
+*.egg
+*.egg-info/
+*.dist-info/
+.Python
+build/
+develop-eggs/
+dist/
+downloads/
+eggs/
+.eggs/
+lib/
+lib64/
+parts/
+sdist/
+var/
+*.log
+*.pot
+*.pyc
+*.pyo
+*.pyd
+*.pid
+*.coverage
+*.tox
+*.env
+.venv/
+ENV/
+env/
+venv/
+ENV.bak/
+venv.bak/
+env.bak/
+pip-log.txt
+pip-delete-this-directory.txt
+
+# Jupyter Notebook checkpoints
+.ipynb_checkpoints
+
+# VS Code
+.vscode/
+*.code-workspace
+
+# PyCharm
+.idea/
+
+# Data and model files
+*.h5
+*.hdf5
+*.pkl
+*.joblib
+*.csv
+*.tsv
+*.xlsx
+*.xls
+*.npy
+*.npz
+data/
+datasets/
+notebooks/
+models/
+*.ckpt
+
+# Environment variables and secrets
+.env
+.env.*
+*.pem
+
+# Caches
+.cache/
+*.cache
+*.tmp
+*.temp
+.DS_Store
+Thumbs.db
+
+# Logs
+logs/
+*.log
+*.out
+
+# MacOS
+.DS_Store
+.DS_Store?
+
+# System files
+Thumbs.db
+ehthumbs.db
+*.ini
+*.bat
+*.dll
+*.exe
+*.com
+*.class
+
+# Docker
+Dockerfile
+docker-compose.yml
+.dockerignore
+
+# Unit test / coverage reports
+coverage/
+.tox/
+nosetests.xml
+coverage.xml
+*.cover
+.hypothesis/
+.pytest_cache/
+.cache
+test-results/
+
+# Jupyter Notebook outputs
+.ipynb_checkpoints/
+*.ipynb
+*.html
+
+# Python virtual environments
+venv/
+venv.bak/
+env/
+env.bak/
+ENV/
+ENV.bak/
+
+# Security and private keys
+secrets/
+config.py
+secret_config.py
+
+# Others
+*.sqlite3
