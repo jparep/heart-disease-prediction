@@ -15,7 +15,8 @@ def main():
     # Load data
     file_path = 'data/processed/merged_heart_data.csv'
     df = load_data(file_path)
-    print(df.head())
+    df = df.dropna(subset=['HeartDisease'])
+    print(f"Total NA for target varible = {df['HeartDisease'].isna().sum()}")
 
 if __name__=='__main__':
     main()
