@@ -18,10 +18,21 @@ def load_data(file_path):
     """Load Data from csv file"""
     return pd.read_csv(file_path)
 
-def preprocessing(df):
+def remove_all_nan_cols(df):
+    """Remove columns with all NA and target value with NAN"""
     df = df.drop('Unnamed: 0', axis=1)
-    df =df.dropna(subset=['HeartDisease'])
+    df = df.dropna(subset=['HeartDisease'])
+    df = df.dropna(axis=1, how='all')
     return df
+
+def separate_to_cat_num_cols(df):
+    """Separate features into categorical and numerical columns"""
+    cat_cols = df.select_dtypes(include=['objects']).columns
+    num_cols = df.select_dtypes(include=['int64', 'float64']).columns
+    return cat_cols, num_cols
+
+def num_pipeline(df):
+    
     
 
 def main():
@@ -31,8 +42,9 @@ def main():
     df = load_data(file_path)
     
     # Preprocess data
-    df =preprocessing(df)
-    logging.info(df.columns)
+    df =remove_all_nan_cols(df)
+    cat_cols, num_cols = separate_to_cat_num_cols(df)
+    
     
 if __name__=='__main__':
     main()
