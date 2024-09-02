@@ -32,7 +32,7 @@ def main():
     
     # Preprocess data
     df =preprocessing(df)
-    print(df.columns)
+    logging.info(df.columns)
     
 if __name__=='__main__':
     main()
