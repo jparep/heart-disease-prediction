@@ -31,8 +31,20 @@ def separate_to_cat_num_cols(df):
     num_cols = df.select_dtypes(include=['int64', 'float64']).columns
     return cat_cols, num_cols
 
-def num_pipeline(df):
-    
+def numerical_pipeline(df):
+    """Transformer Pipeline for Numerical features"""
+    num_pipe = Pipeline(steps=[
+        'imputer', IterativeImputer(),
+        'scaler', StandardScaler()
+    ])
+    return num_pipe
+
+def categorical_pipeline(df):
+    "Pipeline transformer for categorical features"
+    cat_pipe = Pipeline(steps=[
+        ('imputer', SimpleImputer()),
+        ('onehot', OneHotEncoder(handle_unknown='ignore'))
+    ])
     
 
 def main():
