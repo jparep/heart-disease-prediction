@@ -6,7 +6,12 @@ from sklearn.pipeline import Pipeline
 from sklearn.compose import ColumnTransformer
 from sklearn.ensemble import RandomForestClassifier
 import logging
-
+ 
+ # Configure logging
+logging.basicConfig(level=logging.INFO, 
+                    format='%(asctime)s - %(name)s - %(level)s - %(message)s', 
+                    handlers = [logging.FileHandler("app.log"),
+                                logging.StreamHandler()])
 
 
 def load_data(file_path):
