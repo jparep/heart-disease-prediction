@@ -46,6 +46,16 @@ def categorical_pipeline(df):
         ('onehot', OneHotEncoder(handle_unknown='ignore'))
     ])
     
+def preprocessing():
+    preprocessor = ColumnTransformer(transformers=[
+        ('cat', categorical_pipeline),
+        ('num', numerical_pipeline)
+    ])
+    model_pip = Pipeline(steps=[
+        ('preprocessor', preprocessor),
+        ('model', RandomForestClassifier(random_state=12))
+    ])
+    return model_pip
 
 def main():
     
@@ -56,6 +66,7 @@ def main():
     # Preprocess data
     df =remove_all_nan_cols(df)
     cat_cols, num_cols = separate_to_cat_num_cols(df)
+    model = preprocessing()
     
     
 if __name__=='__main__':
