@@ -28,6 +28,7 @@ def remove_all_nan_cols(df):
     df = df.drop('Unnamed: 0', axis=1)
     df = df.dropna(subset=['HeartDisease'])
     df = df.dropna(axis=1, how='all')
+    logging.info(f"Columns with all NaNs removed.")
     return df
 
 def separate_to_cat_num_cols(df):
@@ -39,15 +40,15 @@ def separate_to_cat_num_cols(df):
 def numerical_pipeline(df):
     """Transformer Pipeline for Numerical features"""
     num_pipe = Pipeline(steps=[
-        'imputer', IterativeImputer(),
-        'scaler', StandardScaler()
+        ('imputer', IterativeImputer()),
+        ('scaler', StandardScaler())
     ])
     return num_pipe
 
 def categorical_pipeline(df):
     "Pipeline transformer for categorical features"
     cat_pipe = Pipeline(steps=[
-        ('imputer', SimpleImputer()),
+        ('imputer', SimpleImputer(strategy='most_frequent')),
         ('onehot', OneHotEncoder(handle_unknown='ignore'))
     ])
     
