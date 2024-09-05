@@ -15,8 +15,13 @@ logging.basicConfig(level=logging.INFO,
 
 
 def load_data(file_path):
-    """Load Data from csv file"""
-    return pd.read_csv(file_path)
+    """Load Data from csv file."""
+    try:
+        df = pd.read_csv(file_path)
+        logging.info("Data loaded from {file_path}")
+        return df
+    except Exception as e:
+        logging.error(f"Failed to load data: {e}")
 
 def remove_all_nan_cols(df):
     """Remove columns with all NA and target value with NAN"""
