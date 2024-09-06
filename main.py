@@ -14,8 +14,8 @@ logging.basicConfig(level=logging.INFO,
                     handlers=[logging.FileHandler("app.log"),
                               logging.StreamHandler()])
 
-def load_data(file_path):
-    """Load Data from CSV file."""
+def load_csv_data(file_path):
+    """Load data from a CSV file."""
     try:
         logging.info(f"Loading data from {file_path}")
         df = pd.read_csv(file_path)
@@ -25,72 +25,86 @@ def load_data(file_path):
         logging.error(f"Failed to load data: {e}")
         raise
 
-def remove_all_nan_cols(df):
-    """Remove columns with all NA and drop target values with NAN."""
-    df = df.drop('Unnamed: 0', axis=1)
-    df = df.dropna(subset=['HeartDisease'])
-    df = df.dropna(axis=1, how='all')
-    X = df.drop('HeartDisease', axis=1)
-    y = df['HeartDisease']
-    logging.info("Columns with all NaNs removed.")
-    return X,y
+def clean_and_split_target(df, target_column='HeartDisease'):
+    """Remove all-NA columns and separate features from the target column."""
+    df = df.drop(columns=['Unnamed: 0'], errors='ignore')  # Drop irrelevant index column
+    df = df.dropna(subset=[target_column])  # Drop rows where target is NaN
+    df = df.dropna(axis=1, how='all')  # Drop columns with all NaN values
+    
+    X = df.drop(target_column, axis=1)
+    y = df[target_column]
+    
+    logging.info(f"Cleaned data, removed all-NaN columns, and split target: {target_column}")
+    return X, y
 
-def separate_to_cat_num_cols(X):
-    """Separate features into categorical and numerical columns."""
-    cat_cols = X.select_dtypes(include=['object']).columns
-    num_cols = X.select_dtypes(include=['int64', 'float64']).columns
-    logging.info(f"Categorical columns: {cat_cols}")
-    logging.info(f"Numerical columns: {num_cols}")
-    return cat_cols, num_cols
+def get_categorical_and_numerical_columns(X):
+    """Identify categorical and numerical columns in the feature set."""
+    categorical_columns = X.select_dtypes(include=['object']).columns
+    numerical_columns = X.select_dtypes(include=['int64', 'float64']).columns
+    
+    logging.info(f"Categorical columns: {categorical_columns}")
+    logging.info(f"Numerical columns: {numerical_columns}")
+    return categorical_columns, numerical_columns
 
-def numerical_pipeline():
-    """Transformer Pipeline for Numerical features."""
-    num_pipe = Pipeline(steps=[
-        ('imputer', IterativeImputer()),
-        ('scaler', StandardScaler())
+def create_numerical_pipeline():
+    """Create a pipeline for processing numerical features."""
+    num_pipeline = Pipeline(steps=[
+        ('imputer', IterativeImputer()),  # Impute missing values using IterativeImputer
+        ('scaler', StandardScaler())  # Standardize the data
     ])
-    return num_pipe
+    return num_pipeline
 
-def categorical_pipeline():
-    """Pipeline transformer for categorical features."""
-    cat_pipe = Pipeline(steps=[
-        ('imputer', SimpleImputer(strategy='most_frequent')),
-        ('onehot', OneHotEncoder(handle_unknown='ignore'))
+def create_categorical_pipeline():
+    """Create a pipeline for processing categorical features."""
+    cat_pipeline = Pipeline(steps=[
+        ('imputer', SimpleImputer(strategy='most_frequent')),  # Impute missing values with the most frequent value
+        ('onehot', OneHotEncoder(handle_unknown='ignore'))  # One-hot encode categorical data
     ])
-    return cat_pipe
+    return cat_pipeline
 
-def preprocessing(cat_cols, num_cols):
-    """Preprocessing step with ColumnTransformer."""
+def create_preprocessing_pipeline(categorical_columns, numerical_columns):
+    """Build the preprocessing pipeline using both categorical and numerical pipelines."""
     preprocessor = ColumnTransformer(transformers=[
-        ('cat', categorical_pipeline(), cat_cols),
-        ('num', numerical_pipeline(), num_cols)
+        ('num', create_numerical_pipeline(), numerical_columns),  # Apply numerical pipeline
+        ('cat', create_categorical_pipeline(), categorical_columns)  # Apply categorical pipeline
     ])
     
+    # Create full pipeline including the model
     model_pipeline = Pipeline(steps=[
         ('preprocessor', preprocessor),
-        ('model', RandomForestClassifier(random_state=12))
+        ('model', RandomForestClassifier(random_state=12))  # Use RandomForest for classification
     ])
+    
     logging.info("Preprocessing and model pipeline created.")
     return model_pipeline
 
 def main():
+    # File path for the dataset
     file_path = 'data/processed/merged_heart_data.csv'
     
-    # Load data
-    df = load_data(file_path)
+    # Step 1: Load the data
+    df = load_csv_data(file_path)
     
-    # Preprocess data
-    X, y = remove_all_nan_cols(df)
-    cat_cols, num_cols = separate_to_cat_num_cols(X)
+    # Step 2: Clean data and split into features (X) and target (y)
+    X, y = clean_and_split_target(df)
     
-    # Create preprocessing and model pipeline
-    model_pipeline = preprocessing(cat_cols, num_cols)
+    # Step 3: Identify categorical and numerical columns
+    categorical_columns, numerical_columns = get_categorical_and_numerical_columns(X)
     
-    # Split train and test sets
-    X_train, X_test, y_train, y_test = train_test_split(X,y, test_size=0.2, randome_state=12)
+    # Step 4: Create preprocessing and model pipeline
+    model_pipeline = create_preprocessing_pipeline(categorical_columns, numerical_columns)
     
-    # Model training can be added here
+    # Step 5: Split data into training and testing sets
+    X_train, X_test, y_train, y_test = train_test_split(X, y, test_size=0.2, random_state=12)
+    
+    # Step 6: Fit the model pipeline on training data
+    logging.info("Fitting the model pipeline to the training data.")
     model_pipeline.fit(X_train, y_train)
     
+    # Optionally, add model evaluation here if needed (e.g., cross-validation or test evaluation)
+    cross_val_score(model_pipeline, X_train, y_train, cv=5, random_state=12)
+    
+    logging.info("Model pipeline training complete.")
+
 if __name__ == '__main__':
     main()
