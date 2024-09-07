@@ -21,6 +21,7 @@ logging.basicConfig(level=logging.INFO,
                     handlers=[logging.FileHandler('app.log'), logging.StreamHandler()])
 
 def load_data(file_path):
+    """Load data from CSV file."""
     try:
         df = pd.read_csv(file_path)
         logging.info(f"Data loaded successfully from {file_path}")
@@ -28,3 +29,10 @@ def load_data(file_path):
     except Exception  as e:
         logging.info(f"Failed to load data {e}")
         raise
+
+def clean_data(df, target_column):
+    """Clean data by removing irrelevant and all-NA columns and splitting target."""
+    df = df.drop(columns=["Unnamed: 0"], errors='ignore') 
+    df = df.dropna(subset=[target_column]) # Drop rows where target is NaN
+    df = df.dropna(axis=1, how='all')
+    return df.drop(target_column, axis=1), df[target_column]
