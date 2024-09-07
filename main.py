@@ -15,3 +15,7 @@ TARGET_COLUMN = 'HeartDisease'
 TEST_SIZE = 0.2
 RANDOM_STATE = 12
 
+# Configure logging
+logging.basicConfig(level=logging.INFO,
+                    format='%(asctime)s - %(name)s - %(levelname)s - %(message)s',
+                    handlers=[logging.FileHandler('app.log'), logging.StreamHandler()])
