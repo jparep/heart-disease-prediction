@@ -19,3 +19,12 @@ RANDOM_STATE = 12
 logging.basicConfig(level=logging.INFO,
                     format='%(asctime)s - %(name)s - %(levelname)s - %(message)s',
                     handlers=[logging.FileHandler('app.log'), logging.StreamHandler()])
+
+def load_data(file_path):
+    try:
+        df = pd.read_csv(file_path)
+        logging.info(f"Data loaded successfully from {file_path}")
+        return df
+    except Exception  as e:
+        logging.info(f"Failed to load data {e}")
+        raise
