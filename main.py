@@ -36,3 +36,10 @@ def clean_data(df, target_column):
     df = df.dropna(subset=[target_column]) # Drop rows where target is NaN
     df = df.dropna(axis=1, how='all')
     return df.drop(target_column, axis=1), df[target_column]
+
+def create_categorical_pipeline(df):
+    cat_pip = Pipeline(steps=[
+        ('imputer', IterativeImputer()),
+        ('onehot', OneHotEncoder())
+    ])
+    return cat_pip
