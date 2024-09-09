@@ -37,6 +37,11 @@ def clean_data(df, target_column):
     df = df.dropna(axis=1, how='all')
     return df.drop(target_column, axis=1), df[target_column]
 
+def get_column_types(df):
+    cat_cols = df.seleect.dtypes(include=['objects']).columns
+    num_cols = df.select.dtypes(include=['int64', 'flotat64']).columuns
+    return cat_cols, num_cols
+    
 def create_pipeline(imputer, transformer):
     pipe = Pipeline(steps=[
         ('imputer', imputer),
