@@ -47,3 +47,4 @@ def create_pipeline(imputer, transformer):
         ('imputer', imputer),
         ('transfomer', transformer)
     ])
+    return pipe
