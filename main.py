@@ -42,11 +42,11 @@ def get_column_types(df):
     num_cols = df.select.dtypes(include=['int64', 'flotat64']).columuns
     return cat_cols, num_cols
     
-def create_pipeline(imputer, transformer):
+def create_pipeline(imputer, scaler):
     """Build the preprocessing  pipeline for categorical and numerical column."""
     return Pipeline(steps=[
         ('imputer', imputer),
-        ('transformer', transformer)
+        ('scaler', scaler)
     ])
 
 def create_preprocessing_pipeline(cat_cols, num_cols):
@@ -57,4 +57,11 @@ def create_preprocessing_pipeline(cat_cols, num_cols):
     return ColumnTransformer(transformers=[
         ('num', num_pipeline, num_cols),
         ('cat', cat_pipeline, cat_cols)
+    ])
+
+def build_model_pipeline(preprocessor):
+    """Combine preprocessing and the model into a Pipeline."""
+    return Pipeline(steps=[
+        ('preprocesor', preprocessor),
+        ('model', RandomForestClassifier(random_state=RANDOM_STATE))
     ])
