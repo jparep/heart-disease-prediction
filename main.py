@@ -67,9 +67,6 @@ def build_model_pipeline(preprocessor):
         ('model', RandomForestClassifier(random_state=RANDOM_STATE))
     ])
 
-from sklearn.model_selection import GridSearchCV
-import logging
-
 def hyperparameter_tuning(model_pipeline, X_train, y_train):
     """Tuning the hyperparameters for the RandomForest model in the pipeline."""
     try:
@@ -114,20 +111,36 @@ def train_model(model, X_train, y_train):
     return model.fit(X_train, y_train)
 
 def evaluate_model(model, X_test, y_test):
-    """Evaluate model performance on test sets."""
-    y_pred = model.predict(X_test)
-    
-    scores = {
-    'Accuracy': accuracy_score(y_test, y_pred),
-    'Precision': precision_score(y_test, y_pred, average='binary'),
-    'Recall': recall_score(y_test, y_pred, average='binary'),
-    'F-1 Score': f1_score(y_test, y_pred, average='binary'),
-    'ROC AUC': roc_auc_score(y_test, y_pred)
-    }
-    report = classification_report(y_test, y_pred)
-    
-    print('Evaluation Metrics')
-    for key, score in scores.items():
-        print(f'{key}\n: {score:.4f}')
+    """Evaluate model performance on the test set."""
+    try:
+        # Make predictions
+        y_pred = model.predict(X_test)
+
+        # Calculate performance metrics
+        scores = {
+            'Accuracy': accuracy_score(y_test, y_pred),
+            'Precision': precision_score(y_test, y_pred, average='binary'),
+            'Recall': recall_score(y_test, y_pred, average='binary'),
+            'F1 Score': f1_score(y_test, y_pred, average='binary'),
+            'ROC AUC': roc_auc_score(y_test, y_pred)  # For binary classification
+        }
         
-    print(f'Classification Report:\n{report}')
+        # Log the results
+        logging.info(f"Model evaluation scores: {scores}")
+        
+        # Print detailed classification report
+        report = classification_report(y_test, y_pred)
+        logging.info(f"Classification report:\n{report}")
+
+        # Display results in a structured manner
+        print("Evaluation Metrics:")
+        for metric, score in scores.items():
+            print(f"{metric}: {score:.4f}")
+        print("\nDetailed Classification Report:")
+        print(report)
+
+        return scores, report  # Return for further use if needed
+
+    except Exception as e:
+        logging.error(f"Error during model evaluation: {e}")
+        raise
