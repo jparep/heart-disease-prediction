@@ -7,6 +7,7 @@ from sklearn.pipeline import Pipeline
 from sklearn.compose import ColumnTransformer
 from sklearn.model_selection import train_test_split, GridSearchCV
 from sklearn.ensemble import RandomForestClassifier
+from sklearn.metrics import accuracy_score, f1_score, precision_score, 
 import logging
 
 # Global configurations
@@ -66,26 +67,54 @@ def build_model_pipeline(preprocessor):
         ('model', RandomForestClassifier(random_state=RANDOM_STATE))
     ])
 
+from sklearn.model_selection import GridSearchCV
+import logging
+
 def hyperparameter_tuning(model_pipeline, X_train, y_train):
-    """Tuning the hyperparameters for the model."""
-    param_grids ={
-        'model_n_estimators': [50, 100, 200],
-        'model_max_depth': [None, 10, 20, 30],
-        'model_min_sample_leaf': [1, 2, 4],
-        'model_max_sample_leaf': [1, 2, 4],
-        'model_bootstrap': [True, False]
-    }
-    grid_search = GridSearchCV(estimator=model_pipeline, 
-                               param_grid=param_grids,
-                               cv=5,
-                               scoring='accuracy',
-                               verbose=1,
-                               n_jobs=-1)
-    grid_search.fit(X_train, y_train)
-    
-    return grid_search.best_estimator_, grid_search.best_params_
+    """Tuning the hyperparameters for the RandomForest model in the pipeline."""
+    try:
+        # Define the hyperparameters to tune
+        param_grid = {
+            'model__n_estimators': [50, 100, 200],  # Number of trees in the forest
+            'model__max_depth': [None, 10, 20, 30],  # Maximum depth of the tree
+            'model__min_samples_split': [2, 5, 10],  # Minimum number of samples required to split a node
+            'model__min_samples_leaf': [1, 2, 4],  # Minimum number of samples required to be at a leaf node
+            'model__bootstrap': [True, False]  # Whether bootstrap samples are used when building trees
+        }
+
+        # Initialize GridSearchCV with cross-validation, tuning the full pipeline
+        grid_search = GridSearchCV(
+            estimator=model_pipeline,
+            param_grid=param_grid,
+            cv=5,  # 5-fold cross-validation
+            n_jobs=-1,  # Use all available cores
+            scoring='accuracy',  # Evaluation metric, can be changed to 'f1', 'roc_auc', etc.
+            verbose=1  # Enable verbosity to track progress
+        )
+
+        logging.info("Starting hyperparameter tuning using GridSearchCV.")
+        
+        # Fit GridSearchCV
+        grid_search.fit(X_train, y_train)  # X_train and y_train should be passed to the function or referenced globally
+        
+        # Logging the best parameters and score
+        logging.info(f"Best parameters: {grid_search.best_params_}")
+        logging.info(f"Best score: {grid_search.best_score_}")
+
+        # Return the best estimator (pipeline) and all results
+        return grid_search.best_estimator_, grid_search.best_params_, grid_search.cv_results_
+
+    except Exception as e:
+        logging.error(f"Error occurred during hyperparameter tuning: {e}")
+        raise
     
 
 def train_model(model, X_train, y_train):
     """Fit the model pipeline into the training data."""
     return model.fit(X_train, y_train)
+
+def evaluate_model(model, X_test, y_test):
+    """Evaluate model performance on test sets."""
+    y_pred = model.predict(X_test)
+    
+    
