@@ -5,7 +5,7 @@ from sklearn.impute import IterativeImputer, SimpleImputer
 from sklearn.preprocessing import StandardScaler, OneHotEncoder
 from sklearn.pipeline import Pipeline
 from sklearn.compose import ColumnTransformer
-from sklearn.model_selection import train_test_split
+from sklearn.model_selection import train_test_split, GridSearchCV
 from sklearn.ensemble import RandomForestClassifier
 import logging
 
@@ -65,6 +65,26 @@ def build_model_pipeline(preprocessor):
         ('preprocesor', preprocessor),
         ('model', RandomForestClassifier(random_state=RANDOM_STATE))
     ])
+
+def hyperparameter_tuning(model_pipeline, X_train, y_train):
+    """Tuning the hyperparameters for the model."""
+    param_grids ={
+        'model_n_estimators': [50, 100, 200],
+        'model_max_depth': [None, 10, 20, 30],
+        'model_min_sample_leaf': [1, 2, 4],
+        'model_max_sample_leaf': [1, 2, 4],
+        'model_bootstrap': [True, False]
+    }
+    grid_search = GridSearchCV(estimator=model_pipeline, 
+                               param_grid=param_grids,
+                               cv=5,
+                               scoring='accuracy',
+                               verbose=1,
+                               n_jobs=-1)
+    grid_search.fit(X_train, y_train)
+    
+    return grid_search.best_estimator_, grid_search.best_params_
+    
 
 def train_model(model, X_train, y_train):
     """Fit the model pipeline into the training data."""
