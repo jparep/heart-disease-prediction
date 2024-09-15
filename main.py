@@ -44,7 +44,7 @@ def get_column_types(df):
     
 def create_pipeline(imputer, transformer):
     """Build the preprocessing  pipeline for categorical and numerical column."""
-    pipe = Pipeline(steps=[
+    return Pipeline(steps=[
         ('imputer', imputer),
         ('transformer', transformer)
     ])
@@ -54,9 +54,7 @@ def create_preprocessing_pipeline(cat_cols, num_cols):
     num_pipeline = create_pipeline(IterativeImputer(), StandardScaler())
     cat_pipeline = create_pipeline(SimpleImputer(strategy='most_frequent'), OneHotEncoder(handle_unknown='ignore'))
     
-    preprocessor = ColumnTransformer(transformers=[
+    return ColumnTransformer(transformers=[
         ('num', num_pipeline, num_cols),
         ('cat', cat_pipeline, cat_cols)
     ])
-    logging.info("Preprocessing pipeline created.")
-    return preprocessor
