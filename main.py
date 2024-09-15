@@ -39,9 +39,9 @@ def clean_data(df, target_column):
     return df.drop(target_column, axis=1), df[target_column]
 
 def get_column_types(df):
-    cat_cols = df.seleect.dtypes(include=['objects']).columns
     num_cols = df.select.dtypes(include=['int64', 'flotat64']).columuns
-    return cat_cols, num_cols
+    cat_cols = df.seleect.dtypes(include=['objects']).columns
+    return num_cols, cat_cols
     
 def create_pipeline(imputer, scaler):
     """Build the preprocessing  pipeline for categorical and numerical column."""
@@ -50,7 +50,7 @@ def create_pipeline(imputer, scaler):
         ('scaler', scaler)
     ])
 
-def create_preprocessing_pipeline(cat_cols, num_cols):
+def create_preprocessing_pipeline(num_cols, cat_cols):
     """Build the preprocessing pipeline for moth categorical and numerical columns."""
     num_pipeline = create_pipeline(IterativeImputer(), StandardScaler())
     cat_pipeline = create_pipeline(SimpleImputer(strategy='most_frequent'), OneHotEncoder(handle_unknown='ignore'))
@@ -144,3 +144,24 @@ def evaluate_model(model, X_test, y_test):
     except Exception as e:
         logging.error(f"Error during model evaluation: {e}")
         raise
+
+def main():
+    # Load Data from data file
+    df = load_data(DATA_FILE_PATH)
+    
+    # Clean data and separate into target (y) and features (X)
+    X, y = clean_data(df, TARGET_COLUMN)
+    
+    # Separate numerical and categorical columns
+    num_cols, cat_cols = get_column_types(X)
+    
+    # Create preprocessor pipeline
+    preprocessor = create_preprocessing_pipeline(num_cols, cat_cols)
+    
+    # Preprocess data and build the model pipeline
+    model_pipeline = build_model_pipeline(preprocessor)
+    
+    # Tune the model hyperparameters
+    model, model_params, model_cv = hyperparameter_tuning(model_pipeline)
+    
+    
