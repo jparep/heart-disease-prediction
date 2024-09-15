@@ -161,7 +161,14 @@ def main():
     # Preprocess data and build the model pipeline
     model_pipeline = build_model_pipeline(preprocessor)
     
+    # Split the data into training and testing sets
+    X_train, X_test, y_train, y_test = train_test_split(X, y, test_size=TEST_SIZE, random_state=RANDOM_STATE)
+    
     # Tune the model hyperparameters
-    model, model_params, model_cv = hyperparameter_tuning(model_pipeline)
+    model, model_params, model_cv = hyperparameter_tuning(model_pipeline, X_train, y_train)
     
-    
+    # Evaluate model performance
+    evaluate_model(model, X_test, y_test)
+
+if __name__=='__main__':
+    main()
