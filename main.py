@@ -65,3 +65,7 @@ def build_model_pipeline(preprocessor):
         ('preprocesor', preprocessor),
         ('model', RandomForestClassifier(random_state=RANDOM_STATE))
     ])
+
+def train_model(model, X_train, y_train):
+    """Fit the model pipeline into the training data."""
+    return model.fit(X_train, y_train)
