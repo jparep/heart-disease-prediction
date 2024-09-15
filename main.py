@@ -7,7 +7,7 @@ from sklearn.pipeline import Pipeline
 from sklearn.compose import ColumnTransformer
 from sklearn.model_selection import train_test_split, GridSearchCV
 from sklearn.ensemble import RandomForestClassifier
-from sklearn.metrics import accuracy_score, f1_score, precision_score, 
+from sklearn.metrics import roc_auc_score, classification_report, accuracy_score, f1_score, precision_score, recall_score
 import logging
 
 # Global configurations
@@ -117,4 +117,17 @@ def evaluate_model(model, X_test, y_test):
     """Evaluate model performance on test sets."""
     y_pred = model.predict(X_test)
     
+    scores = {
+    'Accuracy': accuracy_score(y_test, y_pred),
+    'Precision': precision_score(y_test, y_pred, average='binary'),
+    'Recall': recall_score(y_test, y_pred, average='binary'),
+    'F-1 Score': f1_score(y_test, y_pred, average='binary'),
+    'ROC AUC': roc_auc_score(y_test, y_pred)
+    }
+    report = classification_report(y_test, y_pred)
     
+    print('Evaluation Metrics')
+    for key, score in scores.items():
+        print(f'{key}\n: {score:.4f}')
+        
+    print(f'Classification Report:\n{report}')
