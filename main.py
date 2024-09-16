@@ -11,11 +11,22 @@ from sklearn.metrics import (roc_auc_score, classification_report, accuracy_scor
                              f1_score, precision_score, recall_score)
 import logging
 from typing import Tuple, Dict, Any
-import yaml
+import os
 
-# Load configurations from YAML file
-with open('config.yaml', 'r') as file:
-    config = yaml.safe_load(file)
+# Global configuration (can be overridden by environment variables)
+DATA_FILE_PATH = os.getenv('DATA_FILE_PATH', 'data/processed/merged_heart_data.csv')
+TARGET_COLUMN = os.getenv('TARGET_COLUMN', 'HeartDisease')
+TEST_SIZE = float(os.getenv('TEST_SIZE', 0.2))
+RANDOM_STATE = int(os.getenv('RANDOM_STATE', 12))
+
+# Hyperparameter grid for RandomForest
+param_grid = {
+    'model__n_estimators': [50, 100, 200],
+    'model__max_depth': [None, 10, 20, 30],
+    'model__min_samples_split': [2, 5, 10],
+    'model__min_samples_leaf': [1, 2, 4],
+    'model__bootstrap': [True, False]
+}
 
 # Configure logging
 logging.basicConfig(level=logging.INFO,
@@ -28,6 +39,12 @@ def load_data(file_path: str) -> pd.DataFrame:
         df = pd.read_csv(file_path)
         logging.info(f"Data loaded successfully from {file_path}")
         return df
+    except FileNotFoundError as e:
+        logging.error(f"File not found: {e}")
+        raise
+    except pd.errors.EmptyDataError as e:
+        logging.error(f"Data file is empty: {e}")
+        raise
     except Exception as e:
         logging.error(f"Failed to load data: {e}")
         raise
@@ -66,12 +83,11 @@ def build_model_pipeline(preprocessor: ColumnTransformer) -> Pipeline:
     """Combine preprocessing and model into a pipeline."""
     return Pipeline(steps=[
         ('preprocessor', preprocessor),
-        ('model', RandomForestClassifier(random_state=config['RANDOM_STATE'], n_jobs=-1))
+        ('model', RandomForestClassifier(random_state=RANDOM_STATE, n_jobs=-1))
     ])
 
 def hyperparameter_tuning(model_pipeline: Pipeline, X_train: pd.DataFrame, y_train: pd.Series) -> Tuple[Pipeline, Dict[str, Any], Dict[str, Any]]:
     """Tune hyperparameters for RandomForest in the pipeline."""
-    param_grid = config['param_grid']
     grid_search = GridSearchCV(estimator=model_pipeline,
                                param_grid=param_grid,
                                cv=5,
@@ -118,12 +134,12 @@ def evaluate_model(model: Pipeline, X_test: pd.DataFrame, y_test: pd.Series) -> 
 
 def main():
     """Main function to load data, preprocess, train, and evaluate the model."""
-    df = load_data(config['DATA_FILE_PATH'])
-    X, y = clean_data(df, config['TARGET_COLUMN'])
+    df = load_data(DATA_FILE_PATH)
+    X, y = clean_data(df, TARGET_COLUMN)
     num_cols, cat_cols = get_column_types(X)
     preprocessor = create_preprocessing_pipeline(num_cols, cat_cols)
     model_pipeline = build_model_pipeline(preprocessor)
-    X_train, X_test, y_train, y_test = train_test_split(X, y, test_size=config['TEST_SIZE'], random_state=config['RANDOM_STATE'])
+    X_train, X_test, y_train, y_test = train_test_split(X, y, test_size=TEST_SIZE, random_state=RANDOM_STATE)
     model, model_params, model_cv = hyperparameter_tuning(model_pipeline, X_train, y_train)
     evaluate_model(model, X_test, y_test)
 
