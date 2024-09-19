@@ -18,3 +18,12 @@ TARGET_COLUMN = os.getenv('TARGET_COLUMN', 'HeartDisease')
 TEST_SIZE = float(os.getenv('TEST_SIZE', 0.2))
 RANDOM_STATE = int(os.getenv('RANDOM_STATE', 12))
 MODEL_SAVE_PATH = os.getenv('MODEL_SAVE_PATH', 'models/model.joblib')
+
+# Hyperparamenter grid for RandomFOrest
+param_grid = {
+    'model_n_estimators': [50, 100, 200],
+    'model_max_depth': [None, 10, 20, 30],
+    'model_min_samples_split': [2, 5, 10],
+    'model_min_samples_leaf': [1, 2, 4],
+    'model_bootstrap': [True, False]
+}
