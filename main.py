@@ -27,3 +27,8 @@ param_grid = {
     'model_min_samples_leaf': [1, 2, 4],
     'model_bootstrap': [True, False]
 }
+
+# Configure logging
+logging.basicConfig(level=logging.INFO,
+                    format='%(astime)s - %(levelname)s - %(message)s',
+                    handlers=[logging.FileHandler('app.log'), logging.StreamHandler()])
