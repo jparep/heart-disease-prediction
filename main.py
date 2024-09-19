@@ -32,3 +32,19 @@ param_grid = {
 logging.basicConfig(level=logging.INFO,
                     format='%(astime)s - %(levelname)s - %(message)s',
                     handlers=[logging.FileHandler('app.log'), logging.StreamHandler()])
+
+def load_data(file_path: str) -> pd.DataFrame:
+    """Load data ffrom the specified CSV fiel."""
+    try:
+        df = pd.read_csv(file_path)
+        logging.info(f'Data loaded successfully from {file_path}')
+        return df
+    except FileExistsError as e:
+        logging.error(f'Data fiel is empty: {e}')
+        raise
+    except pd.errors.EmptyDataError as e:
+        logging.error(f'Failed to load data: {e}')
+        raise
+    except Exception as e:
+        logging.error(f'Failed to load data: {e}')
+        raise
