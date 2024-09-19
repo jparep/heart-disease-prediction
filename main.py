@@ -11,3 +11,10 @@ from typing import Tuple, Dict, Any
 import logging
 import os
 import joblib
+
+# Global configuration (can be overriden by environment vairables)
+DATA_FILE_PATH = os.getenv('DATA_FILE_PATH', 'data/preprocessed/merged_heart_data.csv')
+TARGET_COLUMN = os.getenv('TARGET_COLUMN', 'HeartDisease')
+TEST_SIZE = float(os.getenv('TEST_SIZE', 0.2))
+RANDOM_STATE = int(os.getenv('RANDOM_STATE', 12))
+MODEL_SAVE_PATH = os.getenv('MODEL_SAVE_PATH', 'models/model.joblib')
