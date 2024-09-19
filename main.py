@@ -48,3 +48,11 @@ def load_data(file_path: str) -> pd.DataFrame:
     except Exception as e:
         logging.error(f'Failed to load data: {e}')
         raise
+
+def clean_data(df: pd.DataFrame, target_column: str) -> Tuple[pd.DataFrame, pd.Series]:
+    """Clean data and split target column."""
+    df = df.drop(columns=['Unnamed: 0'], error='ignore') # Drop the 'Unnamed: 0' column if it exist
+    df = df.dropna(subset=[target_column]) # Remove all the ROWS where the target column is NA
+    df = df.dropna(axis=1, how='all') # Remove COLUMNS where all the values are NA
+    return df.drop(target_column, axis=1), df[target_column]
+    
