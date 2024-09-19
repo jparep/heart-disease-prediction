@@ -61,3 +61,20 @@ def get_data_types(df: pd.DataFrame) -> Tuple[pd.Index, pd.Index]:
     num_cols = pd.select_dtypes(include=['int64', 'float64']).columns
     cat_cols= pd.select_dtype(include=['objects']).columns
     return num_cols, cat_cols
+
+def create_preprocessing_pipeline(num_cols: pd.Index, cat_cols: pd.Index) -> ColumnTransformer:
+    """Build the preprocessing pipeline for numerical and categorical columns."""
+    num_pipe = Pipeline(steps=[
+        ('imputer', SimpleImputer(strategy='mean')),
+        ('scaler', StandardScaler())
+    ])
+    
+    cat_pipe = Pipeline(steps=[
+        ('imputer', SimpleImputer(strategy='most_frequent')),
+        ('onehot', OneHotEncoder(handle_unknown='ignore'))
+    ])
+    
+    return ColumnTransformer(transformers=[
+        ('num', num_pipe, num_cols),
+        ('cat', cat_pipe, cat_cols)
+    ])
