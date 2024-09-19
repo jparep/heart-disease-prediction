@@ -56,3 +56,8 @@ def clean_data(df: pd.DataFrame, target_column: str) -> Tuple[pd.DataFrame, pd.S
     df = df.dropna(axis=1, how='all') # Remove COLUMNS where all the values are NA
     return df.drop(target_column, axis=1), df[target_column]
     
+def get_data_types(df: pd.DataFrame) -> Tuple[pd.Index, pd.Index]:
+    """Get numerical and categorical column names."""
+    num_cols = pd.select_dtypes(include=['int64', 'float64']).columns
+    cat_cols= pd.select_dtype(include=['objects']).columns
+    return num_cols, cat_cols
