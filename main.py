@@ -148,4 +148,28 @@ def load_model(file_name: str) -> Pipeline:
     except Exception as e:
         logging.error(f"Error loading model: {e}")
         raise
+
+def main():
+    # Load the data file into DataFrame
+    df = load_data(DATA_FILE_PATH)
     
+    # Clean DataFrame and separate features (X) and target (y) variables
+    X, y = clean_data(df)
+    
+    # Separate into numerical and categorical columns from features (X)
+    num_cols, cat_cols = get_data_types(X)
+    
+    # Create Pipeline of numerical and categorical features into ColumnTransformer
+    preprocessor = create_preprocessing_pipeline(num_cols, cat_cols)
+    
+    # Build preprocessor model pipeline
+    model_pipeline = build_model_pipeline(preprocessor)
+    
+    # Split data into train and test sets
+    X_train, X_test, y_train, y_test = train_test_split(X, y, test_size=TEST_SIZE, random_state=RANDOM_STATE)
+    
+    # Hyperparameter tune the model pipeline
+    best_model = hyperparameter_tuning(model_pipeline, X_train, y_train)
+    
+    # Evaludate the model performance
+    evaluate_model(best_model)
