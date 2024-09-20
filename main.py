@@ -86,7 +86,7 @@ def build_model_pipeline(preprocessor: ColumnTransformer) -> Pipeline:
         ('model', RandomForestClassifier(random_state=RANDOM_STATE, n_jobs=-1))
     ])
 
-def hyperparameter_tuning(model_pipeline: Pipeline, X_train: pd. DataFrame, y_train: pd.Series) -> Tuple[Pipeline, Dict[str, Any], Dict[str, Any]]:
+def hyperparameter_tuning(model_pipeline: Pipeline, X_train: pd. DataFrame, y_train: pd.Series) -> Pipeline:
     """Tune hyperparameters for Randomforest classsifier into a pipeline."""
     cv = StratifiedKFold(n_splits=5, shuffle=True, random_state=RANDOM_STATE)
     grid_search = GridSearchCV(estimator=model_pipeline,
@@ -100,7 +100,7 @@ def hyperparameter_tuning(model_pipeline: Pipeline, X_train: pd. DataFrame, y_tr
     
     logging.info(f'Best parameters: {grid_search.best_params_}')
     logging.info(f'Best score: {grid_search.best_score_}')
-    return grid_search.best_estimator_, grid_search.best_params_, grid_search.cv_results_
+    return grid_search.best_estimator_
 
 
 def evaluate_model(model: Pipeline, X_test: pd.DataFrame, y_test: pd.Series) -> None:
