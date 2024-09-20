@@ -56,10 +56,10 @@ def clean_data(df: pd.DataFrame, target_column: str) -> Tuple[pd.DataFrame, pd.S
     df = df.dropna(axis=1, how='all') # Remove COLUMNS where all the values are NA
     return df.drop(target_column, axis=1), df[target_column]
     
-def get_data_types(df: pd.DataFrame) -> Tuple[pd.Index, pd.Index]:
+def get_data_types(X: pd.DataFrame) -> Tuple[pd.Index, pd.Index]:
     """Get numerical and categorical column names."""
-    num_cols = pd.select_dtypes(include=['int64', 'float64']).columns
-    cat_cols= pd.select_dtype(include=['objects']).columns
+    num_cols = X.select_dtypes(include=['int64', 'float64']).columns
+    cat_cols= X.select_dtypes(include=['object']).columns
     return num_cols, cat_cols
 
 def create_preprocessing_pipeline(num_cols: pd.Index, cat_cols: pd.Index) -> ColumnTransformer:
@@ -125,5 +125,14 @@ def evaluate_model(model: Pipeline, X_test: pd.DataFrame, y_test: pd.Series) -> 
         print('\n\nClassfification Report:\n{report}')
     except Exception as e:
         logging.error(f'Error during model evaluation: {e}')
+        raise
+
+def save_model(model: Pipeline, file_name: str) -> None:
+    """Save the trained model to disk."""
+    try:
+        joblib.dump(model, file_name)
+        logging.info(f"Model saved to {file_name}")
+    except Exception as e:
+        logging.error(f"Error saving model: {e}")
         raise
     
