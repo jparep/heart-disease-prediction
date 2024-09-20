@@ -101,3 +101,29 @@ def hyperparameter_tuning(model_pipeline: Pipeline, X_train: pd. DataFrame, y_tr
     logging.info(f'Best parameters: {grid_search.best_params_}')
     logging.info(f'Best score: {grid_search.best_score_}')
     return grid_search.best_estimator_, grid_search.best_params_, grid_search.cv_results_
+
+
+def evaluate_model(model: Pipeline, X_test: pd.DataFrame, y_test: pd.Series) -> None:
+    """Evaluate model performance on the test sets."""
+    try:
+        y_pred = model.predict(X_test)
+        score_dict = {
+            'Accuracy': accuracy_score(y_test, y_pred),
+            'Precision': precision_score(y_test, y_pred),
+            'Recall': recall_score(y_test, y_pred),
+            'F-1 Score': f1_score(y_test, y_pred),
+            'ROC AUC': roc_auc_score(y_test, y_pred)
+        }
+        logging.info(f'Model evaluation scores: {score_dict}')
+        report = classification_report(y_test, y_pred)
+        logging.info(f'Classification Report: {report}')
+        
+        print("Evaluation Metrics:")
+        for key, value in score_dict.items():
+            print(f'{key}: {value:.4f}')
+            
+        print('\n\nClassfification Report:\n{report}')
+    except Exception as e:
+        logging.error(f'Error during model evaluation: {e}')
+        raise
+    
