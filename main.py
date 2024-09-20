@@ -135,4 +135,17 @@ def save_model(model: Pipeline, file_name: str) -> None:
     except Exception as e:
         logging.error(f"Error saving model: {e}")
         raise
+
+def load_model(file_name: str) -> Pipeline:
+    """Load a saved model from disk."""
+    try:
+        model = joblib.load(file_name)
+        logging.info(f'Mode loaded from {file_name}')
+        return model
+    except FileNotFoundError as e:
+        logging.error(f"Model file not found: {e}")
+        raise
+    except Exception as e:
+        logging.error(f"Error loading model: {e}")
+        raise
     
