@@ -5,7 +5,7 @@ from sklearn.preprocessing import StandardScaler, OneHotEncoder
 from sklearn.pipeline import Pipeline
 from sklearn.compose import ColumnTransformer
 from sklearn.ensemble import RandomForestClassifier
-from sklearn.model_selection import train_test_split, GridSearchCV
+from sklearn.model_selection import train_test_split, GridSearchCV, StratifiedKFold
 from sklearn.metrics import accuracy_score, precision_score, recall_score, f1_score, roc_auc_score, classification_report
 from typing import Tuple, Dict, Any
 import logging
@@ -78,3 +78,26 @@ def create_preprocessing_pipeline(num_cols: pd.Index, cat_cols: pd.Index) -> Col
         ('num', num_pipe, num_cols),
         ('cat', cat_pipe, cat_cols)
     ])
+
+def build_model_pipeline(preprocessor: ColumnTransformer) -> Pipeline:
+    """Combine preprocessing and model into a pipeline."""
+    return Pipeline(steps=[
+        ('preprocessor', preprocessor),
+        ('model', RandomForestClassifier(random_state=RANDOM_STATE, n_jobs=-1))
+    ])
+
+def hyperparameter_tuning(model_pipeline: Pipeline, X_train: pd. DataFrame, y_train: pd.Series) -> Tuple[Pipeline, Dict[str, Any], Dict[str, Any]]:
+    """Tune hyperparameters for Randomforest classsifier into a pipeline."""
+    cv = StratifiedKFold(n_splits=5, shuffle=True, random_state=RANDOM_STATE)
+    grid_search = GridSearchCV(estimator=model_pipeline,
+                               param_grid=param_grid,
+                               cv=cv,
+                               n_jobs=-1,
+                               scoring='f1',
+                               verbose=1)
+    logging.info('Starting hyperparameter tuning using GridSearchCV.')
+    grid_search.fit(X_train, y_train)
+    
+    logging.info(f'Best parameters: {grid_search.best_params_}')
+    logging.info(f'Best score: {grid_search.best_score_}')
+    return grid_search.best_estimator_, grid_search.best_params_, grid_search.cv_results_
